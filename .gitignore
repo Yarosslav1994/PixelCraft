@@ -1,0 +1,16 @@
+# Node.js dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Prisma local database (SQLite)
+prisma/dev.db
+prisma/dev.db-journal
+
+# Build output
+dist/
+build/
+
+# Logs
+*.log

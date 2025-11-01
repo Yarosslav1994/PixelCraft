@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Вхід користувача</title>
+</head>
+<body>
+  <h1>Вхід користувача</h1>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required><br><br>
+    <input type="password" id="password" placeholder="Пароль" required><br><br>
+    <button type="submit">Увійти</button>
+  </form>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      
+      if (res.ok) {
+        alert("Вхід успішний! Ласкаво просимо.");
+        // Тут можна перенаправити користувача на головну сторінку курсу
+        // window.location.href = "/index.html";
+      } else {
+        alert("Помилка: " + data.error);
+      }
+    });
+  </script>
+</body>
+</html>
