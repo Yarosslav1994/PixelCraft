@@ -1,29 +1,31 @@
-// Підключаємо необхідні модулі
 const express = require('express');
 const path = require('path');
 
 const app = express();
-
-// Порт від Render або 3000 для локального запуску
 const PORT = process.env.PORT || 3000;
 
-// Вказуємо папку зі статичними файлами (HTML, CSS, JS)
+// Дозволяємо доступ до всіх статичних файлів у public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Маршрут для головної сторінки
+// Головна сторінка
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Маршрут для сторінки логіну
+// Сторінка логіну
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// Маршрут для сторінки реєстрації
+// Сторінка реєстрації
 app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
+
+// Можна додати інші HTML файли так само
+// app.get('/course_blocks', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'course_blocks.html'));
+// });
 
 // Запускаємо сервер
 app.listen(PORT, () => {
