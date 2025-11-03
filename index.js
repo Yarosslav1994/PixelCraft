@@ -22,12 +22,6 @@ app.use(
   })
 );
 
-
-
-// ======= СТАТИЧНІ ФАЙЛИ =======
-app.use(express.static(path.join(__dirname, 'public')));
-
-
 // ======= СТАТИЧНІ ФАЙЛИ =======
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -45,6 +39,11 @@ function requireLogin(req, res, next) {
 // Домашня сторінка (лише для залогінених)
 app.get('/', requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// ======= TechCheck сторінка =======
+app.get('/techcheck.html', requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'techcheck.html'));
 });
 
 // ======= РЕЄСТРАЦІЯ =======
