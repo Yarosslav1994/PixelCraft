@@ -23,6 +23,7 @@ app.use(
 );
 
 // ======= СТАТИЧНІ ФАЙЛИ =======
+// Тепер усе з public доступне без /public у URL
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ======= МІДЛВЕАР ДЛЯ ПЕРЕВІРКИ ЛОГІНУ =======
@@ -55,7 +56,6 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const { username, password } = req.body;
 
-  // Імітація реєстрації (запис у сесію)
   if (username && password) {
     req.session.user = { username };
     res.redirect('/');
@@ -66,14 +66,13 @@ app.post('/register', (req, res) => {
 
 // ======= ЛОГІН =======
 app.get('/login', (req, res) => {
-  if (req.session.user) return res.redirect('/'); // якщо вже залогінений — на головну
+  if (req.session.user) return res.redirect('/');
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  // Простий приклад: студент/1234
   if (username === 'student' && password === '1234') {
     req.session.user = { username };
     res.redirect('/');
@@ -125,7 +124,6 @@ app.post('/api/techcheck', requireLogin, async (req, res) => {
     const data = await response.json();
     const aiText = data.choices[0].message.content;
 
-    // Проста логіка: шукаємо бал у відповіді
     const match = aiText.match(/(\d+)/);
     const points = match ? parseInt(match[1]) : 0;
 
