@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Реєстрація користувача — Демо №2</title>
 <style>
+  /* === твій дизайн залишається без змін === */
   :root{
     --bg: #0b0f1a;
     --card-bg: rgba(255,255,255,0.03);
@@ -74,11 +75,6 @@
   h1{font-size:2rem;margin:0 0 6px 0;letter-spacing:0.6px}
   p.lead{margin:0;color:rgba(230,238,246,0.75)}
 
-  .neon-btn{margin-top:18px;padding:12px 22px;border-radius:14px;border:2px solid rgba(255,255,255,0.04);background:transparent;color:transparent;position:relative;cursor:pointer;overflow:hidden;background-image:var(--accent);-webkit-background-clip:text;background-clip:text;font-weight:600;transition:transform .18s;}
-  .neon-btn:before{content:"";position:absolute;inset:0;margin:auto;z-index:-1;border-radius:14px;background:linear-gradient(90deg, rgba(125,249,255,0.06), rgba(255,107,203,0.06));box-shadow:0 6px 30px rgba(125,249,255,0.06),0 6px 30px rgba(255,107,203,0.04);transform:scale(1);transition:transform .18s,opacity .18s;}
-  .neon-btn:hover{transform:translateY(-6px)}
-  .neon-btn:active{transform:translateY(-2px)}
-
   .register-card {
     background: var(--card-bg);
     padding: 30px;
@@ -141,14 +137,11 @@
 
   <div class="wrap">
     <header>
-      <h1>Демо №2 — Ефекти фронтенду</h1>
-      <p class="lead">Неон, 3D-картки, частинки, анімований курсор</p>
-      <button class="neon-btn" id="cta">Погратись ефектами</button>
+      <h1>Реєстрація користувача</h1>
+      <p class="lead">Введіть ваш email або логін та пароль</p>
     </header>
 
-    <!-- Форма реєстрації -->
     <section class="register-card">
-      <h2>Реєстрація користувача</h2>
       <input type="text" id="usernameField" placeholder="Email або логін" required>
       <input type="password" id="passwordField" placeholder="Пароль" required>
       <button id="registerBtn">Зареєструватися</button>
@@ -157,23 +150,40 @@
   </div>
 
 <script>
-  // Простий JS для "реєстрації"
-  const registerBtn = document.getElementById("registerBtn");
-  const statusMessage = document.getElementById("statusMessage");
+const registerBtn = document.getElementById("registerBtn");
+const statusMessage = document.getElementById("statusMessage");
 
-  registerBtn.addEventListener("click", e=>{
-    e.preventDefault();
-    const username = document.getElementById("usernameField").value.trim();
-    const password = document.getElementById("passwordField").value.trim();
-    if(username && password){
-      // Тут можна відправляти на сервер через fetch('/register', {POST...})
-      statusMessage.style.color = "#7df9ff";
-      statusMessage.textContent = `Користувач ${username} успішно зареєстрований!`;
+registerBtn.addEventListener("click", async e=>{
+  e.preventDefault();
+  const username = document.getElementById("usernameField").value.trim();
+  const password = document.getElementById("passwordField").value.trim();
+  if(!username || !password){
+    statusMessage.style.color="#ff6b6b";
+    statusMessage.textContent="Заповніть обидва поля!";
+    return;
+  }
+
+  try {
+    const res = await fetch("/register", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({username,password})
+    });
+
+    if(res.ok){
+      statusMessage.style.color="#7df9ff";
+      statusMessage.textContent="Реєстрація успішна! Перенаправлення...";
+      setTimeout(()=>window.location.href="index.html",500);
     } else {
-      statusMessage.style.color = "#ff6b6b";
-      statusMessage.textContent = "Заповніть обидва поля!";
+      const data = await res.json();
+      statusMessage.style.color="#ff6b6b";
+      statusMessage.textContent="Помилка: "+(data.error||"не відомо");
     }
-  });
+  } catch(err){
+    statusMessage.style.color="#ff6b6b";
+    statusMessage.textContent="Помилка: сервер недоступний";
+  }
+});
 </script>
 </body>
 </html>

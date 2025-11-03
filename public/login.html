@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Вхід користувача — Демо №2</title>
 <style>
+  /* === твій дизайн залишається без змін === */
   :root{
     --bg: #0b0f1a;
     --card-bg: rgba(255,255,255,0.03);
@@ -74,11 +75,6 @@
   h1{font-size:2rem;margin:0 0 6px 0;letter-spacing:0.6px}
   p.lead{margin:0;color:rgba(230,238,246,0.75)}
 
-  .neon-btn{margin-top:18px;padding:12px 22px;border-radius:14px;border:2px solid rgba(255,255,255,0.04);background:transparent;color:transparent;position:relative;cursor:pointer;overflow:hidden;background-image:var(--accent);-webkit-background-clip:text;background-clip:text;font-weight:600;transition:transform .18s;}
-  .neon-btn:before{content:"";position:absolute;inset:0;margin:auto;z-index:-1;border-radius:14px;background:linear-gradient(90deg, rgba(125,249,255,0.06), rgba(255,107,203,0.06));box-shadow:0 6px 30px rgba(125,249,255,0.06),0 6px 30px rgba(255,107,203,0.04);transform:scale(1);transition:transform .18s,opacity .18s;}
-  .neon-btn:hover{transform:translateY(-6px)}
-  .neon-btn:active{transform:translateY(-2px)}
-
   .login-card {
     background: var(--card-bg);
     padding: 30px;
@@ -145,7 +141,6 @@
       <p class="lead">Введіть ваш логін та пароль</p>
     </header>
 
-    <!-- Форма логіну -->
     <section class="login-card">
       <input type="text" id="usernameField" placeholder="Ім'я користувача" required>
       <input type="password" id="passwordField" placeholder="Пароль" required>
@@ -155,38 +150,40 @@
   </div>
 
 <script>
-  const loginBtn = document.getElementById("loginBtn");
-  const statusMessage = document.getElementById("statusMessage");
+const loginBtn = document.getElementById("loginBtn");
+const statusMessage = document.getElementById("statusMessage");
 
-  loginBtn.addEventListener("click", async e=>{
-    e.preventDefault();
-    const username = document.getElementById("usernameField").value.trim();
-    const password = document.getElementById("passwordField").value.trim();
-    if(username && password){
-      try {
-        const res = await fetch("/login", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({username,password})
-        });
-        if(res.ok){
-          statusMessage.style.color="#7df9ff";
-          statusMessage.textContent="Вхід успішний! Ласкаво просимо.";
-          setTimeout(()=>window.location.href="/",1000);
-        } else {
-          const data = await res.json();
-          statusMessage.style.color="#ff6b6b";
-          statusMessage.textContent="Помилка: "+(data.error||"не відомо");
-        }
-      } catch(err){
-        statusMessage.style.color="#ff6b6b";
-        statusMessage.textContent="Помилка: сервер недоступний";
-      }
+loginBtn.addEventListener("click", async e=>{
+  e.preventDefault();
+  const username = document.getElementById("usernameField").value.trim();
+  const password = document.getElementById("passwordField").value.trim();
+  if(!username || !password){
+    statusMessage.style.color="#ff6b6b";
+    statusMessage.textContent="Заповніть обидва поля!";
+    return;
+  }
+
+  try {
+    const res = await fetch("/login", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({username,password})
+    });
+
+    if(res.ok){
+      statusMessage.style.color="#7df9ff";
+      statusMessage.textContent="Вхід успішний! Ласкаво просимо.";
+      setTimeout(()=>window.location.href="index.html",500); // перенаправлення
     } else {
+      const data = await res.json();
       statusMessage.style.color="#ff6b6b";
-      statusMessage.textContent="Заповніть обидва поля!";
+      statusMessage.textContent="Помилка: "+(data.error||"не відомо");
     }
-  });
+  } catch(err){
+    statusMessage.style.color="#ff6b6b";
+    statusMessage.textContent="Помилка: сервер недоступний";
+  }
+});
 </script>
 </body>
 </html>
