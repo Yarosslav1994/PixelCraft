@@ -1,68 +1,99 @@
 // Підключаємо необхідні модулі
 const express = require('express');
 const path = require('path');
+const session = require('express-session'); // додаємо сесії
 
 const app = express();
 
 // Порт від Render або 3000 для локального запуску
 const PORT = process.env.PORT || 3000;
 
-// ======= СТАТИЧНІ ФАЙЛИ =======
-// Головна папка зі статичними файлами
-app.use(express.static(path.join(__dirname, 'public')));
+// ======= НАЛАШТУВАННЯ =======
+app.use(express.urlencoded({ extended: true })); // щоб читати дані з форм
+app.use(express.json());
 
-// Додатково дозволяємо читати файли з кореня (index.html, favicon тощо)
+// Додаємо підтримку сесій
+app.use(
+  session({
+    secret: 'unity-course-secret', // будь-який секретний ключ
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+// ======= СТАТИЧНІ ФАЙЛИ =======
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
-// Дозволяємо читати картинки з папки Image (якщо вона не всередині public)
-app.use('/Image', express.static(path.join(__dirname, 'Image')));
-// Якщо у тебе картинки всередині public/Image, то цей рядок не обов'язковий.
+// ======= МІДЛВЕАР ДЛЯ ПЕРЕВІРКИ ЛОГІНУ =======
+function requireLogin(req, res, next) {
+  if (req.session.user) {
+    next(); // якщо користувач залогінений — продовжуємо
+  } else {
+    res.redirect('/register'); // якщо ні — перенаправляємо на реєстрацію
+  }
+}
 
 // ======= МАРШРУТИ =======
 
-// Головна сторінка
-app.get('/', (req, res) => {
+// Домашня сторінка (лише для залогінених)
+app.get('/', requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Сторінка логіну
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-// Сторінка реєстрації
+// ======= РЕЄСТРАЦІЯ =======
 app.get('/register', (req, res) => {
+  if (req.session.user) return res.redirect('/'); // якщо вже залогінений — на головну
   res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
-// Інші сторінки курсу
-app.get('/course_blocks.html', (req, res) => {
+app.post('/register', (req, res) => {
+  const { username, password } = req.body;
+
+  // Імітація реєстрації (запис у сесію)
+  if (username && password) {
+    req.session.user = { username };
+    res.redirect('/');
+  } else {
+    res.send('❌ Будь ласка, заповни всі поля!');
+  }
+});
+
+// ======= ЛОГІН =======
+app.get('/login', (req, res) => {
+  if (req.session.user) return res.redirect('/'); // якщо вже залогінений — на головну
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Простий приклад: студент/1234
+  if (username === 'student' && password === '1234') {
+    req.session.user = { username };
+    res.redirect('/');
+  } else {
+    res.send('❌ Неправильний логін або пароль');
+  }
+});
+
+// ======= ВИХІД =======
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/login');
+  });
+});
+
+// ======= СТОРІНКИ КУРСУ =======
+app.get('/course_blocks.html', requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'course_blocks.html'));
 });
-app.get('/Module1.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Module1.html'));
-});
-app.get('/Module2.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Module2.html'));
-});
-app.get('/Module3.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Module3.html'));
-});
-app.get('/Module4.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Module4.html'));
-});
-app.get('/Module5.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Module5.html'));
-});
-app.get('/Module6.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Module6.html'));
-});
-app.get('/Module7.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Module7.html'));
-});
-app.get('/Module8.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Module8.html'));
-});
+
+for (let i = 1; i <= 8; i++) {
+  app.get(`/Module${i}.html`, requireLogin, (req, res) => {
+    res.sendFile(path.join(__dirname, `Module${i}.html`));
+  });
+}
 
 // ======= ЗАПУСК СЕРВЕРА =======
 app.listen(PORT, () => {
