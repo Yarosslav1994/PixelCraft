@@ -116,7 +116,7 @@ app.post('/api/techcheck', requireLogin, async (req, res) => {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini', // або gpt-3.5-turbo
+        model: 'gpt-3.5-turbo',
         messages: [
           { role: 'system', content: `
 Ти викладач Unity. Твоє завдання:
@@ -133,7 +133,7 @@ app.post('/api/techcheck', requireLogin, async (req, res) => {
 
     const data = await response.json();
 
-    // Тут очікуємо, що AI повертає JSON як рядок
+    // Спроба парсити JSON, який повертає AI
     let aiData;
     try {
       aiData = JSON.parse(data.choices[0].message.content);
@@ -142,7 +142,6 @@ app.post('/api/techcheck', requireLogin, async (req, res) => {
       return res.json({ feedback: "❌ Сталася помилка при обробці відповіді AI.", points: 0 });
     }
 
-    // Відправляємо динамічну відповідь студенту
     res.json(aiData);
 
   } catch (err) {
@@ -151,19 +150,6 @@ app.post('/api/techcheck', requireLogin, async (req, res) => {
   }
 });
 
-
-    const data = await response.json();
-    const aiText = data.choices[0].message.content;
-
-    const match = aiText.match(/(\d+)/);
-    const points = match ? parseInt(match[1]) : 0;
-
-    res.json({ feedback: aiText, points });
-  } catch (err) {
-    console.error(err);
-    res.json({ feedback: "❌ Сталася помилка при зверненні до AI.", points: 0 });
-  }
-});
 
 // ======= ЗАПУСК СЕРВЕРА =======
 app.listen(PORT, () => {
