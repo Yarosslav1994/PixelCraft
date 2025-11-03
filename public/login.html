@@ -7,7 +7,7 @@
 <body>
   <h1>Вхід користувача</h1>
   <form id="loginForm">
-    <input type="email" id="email" placeholder="Email" required><br><br>
+    <input type="text" id="username" placeholder="Ім'я користувача" required><br><br>
     <input type="password" id="password" placeholder="Пароль" required><br><br>
     <button type="submit">Увійти</button>
   </form>
@@ -15,23 +15,21 @@
   <script>
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("email").value;
+      const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
 
       const res = await fetch("/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ username, password })
       });
 
-      const data = await res.json();
-      
       if (res.ok) {
         alert("Вхід успішний! Ласкаво просимо.");
-        // Тут можна перенаправити користувача на головну сторінку курсу
-        // window.location.href = "/index.html";
+        window.location.href = "/"; // перенаправлення на головну сторінку
       } else {
-        alert("Помилка: " + data.error);
+        const data = await res.json();
+        alert("Помилка: " + (data.error || "не відомо"));
       }
     });
   </script>

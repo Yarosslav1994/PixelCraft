@@ -23,7 +23,7 @@ app.use(
 
 // ======= СТАТИЧНІ ФАЙЛИ =======
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(__dirname));
+
 
 // ======= МІДЛВЕАР ДЛЯ ПЕРЕВІРКИ ЛОГІНУ =======
 function requireLogin(req, res, next) {
