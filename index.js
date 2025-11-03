@@ -1,8 +1,11 @@
 // Підключаємо необхідні модулі
+
 const express = require('express');
 const path = require('path');
 const session = require('express-session'); // додаємо сесії
 const fetch = require('node-fetch'); // для запитів до OpenAI
+require('dotenv').config();
+
 
 const app = express();
 
@@ -105,6 +108,7 @@ app.post('/api/techcheck', requireLogin, async (req, res) => {
   if (!userAnswer) return res.json({ feedback: "❌ Відповідь порожня!", points: 0 });
 
   try {
+    // Надсилаємо запит до OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -112,14 +116,41 @@ app.post('/api/techcheck', requireLogin, async (req, res) => {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini', // або gpt-3.5-turbo
         messages: [
-          { role: 'system', content: 'Ти викладач Unity. Оціни відповідь студента та дай фідбек. Вкажи скільки балів (0-10).' },
+          { role: 'system', content: `
+Ти викладач Unity. Твоє завдання:
+1. Оціни відповідь студента по суті: що правильно, що ні, що можна покращити.
+2. Дай бали від 0 до 10.
+3. Поверни відповідь строго у JSON-форматі: {"feedback": "...", "points": число}.
+Не вигадуй готові відповіді, оцінюй саме те, що написав студент.
+` },
           { role: 'user', content: userAnswer }
         ],
-        max_tokens: 100
+        max_tokens: 250
       })
     });
+
+    const data = await response.json();
+
+    // Тут очікуємо, що AI повертає JSON як рядок
+    let aiData;
+    try {
+      aiData = JSON.parse(data.choices[0].message.content);
+    } catch (parseError) {
+      console.error('Помилка парсингу JSON від AI:', parseError, data.choices[0].message.content);
+      return res.json({ feedback: "❌ Сталася помилка при обробці відповіді AI.", points: 0 });
+    }
+
+    // Відправляємо динамічну відповідь студенту
+    res.json(aiData);
+
+  } catch (err) {
+    console.error(err);
+    res.json({ feedback: "❌ Сталася помилка при зверненні до AI.", points: 0 });
+  }
+});
+
 
     const data = await response.json();
     const aiText = data.choices[0].message.content;
