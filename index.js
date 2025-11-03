@@ -22,6 +22,12 @@ app.use(
   })
 );
 
+
+// ======= TechCheck сторінка =======
+app.get('/techcheck.html', requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'techcheck.html'));
+});
+
 // ======= СТАТИЧНІ ФАЙЛИ =======
 app.use(express.static(path.join(__dirname, 'public')));
 
