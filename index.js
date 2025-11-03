@@ -2,6 +2,7 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session'); // додаємо сесії
+const fetch = require('node-fetch'); // для запитів до OpenAI
 
 const app = express();
 
@@ -23,7 +24,6 @@ app.use(
 
 // ======= СТАТИЧНІ ФАЙЛИ =======
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 // ======= МІДЛВЕАР ДЛЯ ПЕРЕВІРКИ ЛОГІНУ =======
 function requireLogin(req, res, next) {
@@ -94,6 +94,42 @@ for (let i = 1; i <= 8; i++) {
     res.sendFile(path.join(__dirname, `Module${i}.html`));
   });
 }
+
+// ======= TechCheck (AI-фідбек) =======
+app.post('/api/techcheck', requireLogin, async (req, res) => {
+  const userAnswer = req.body.answer;
+  if (!userAnswer) return res.json({ feedback: "❌ Відповідь порожня!", points: 0 });
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: 'Ти викладач Unity. Оціни відповідь студента та дай фідбек. Вкажи скільки балів (0-10).' },
+          { role: 'user', content: userAnswer }
+        ],
+        max_tokens: 100
+      })
+    });
+
+    const data = await response.json();
+    const aiText = data.choices[0].message.content;
+
+    // Проста логіка: шукаємо бал у відповіді
+    const match = aiText.match(/(\d+)/);
+    const points = match ? parseInt(match[1]) : 0;
+
+    res.json({ feedback: aiText, points });
+  } catch (err) {
+    console.error(err);
+    res.json({ feedback: "❌ Сталася помилка при зверненні до AI.", points: 0 });
+  }
+});
 
 // ======= ЗАПУСК СЕРВЕРА =======
 app.listen(PORT, () => {
