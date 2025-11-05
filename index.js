@@ -52,16 +52,16 @@ app.get('/register', (req, res) => {
 
 // 🔹 Обробка форми
 app.post('/register', async (req, res) => {
-  const { username, password } = req.body; // ← username з форми HTML
+  const { username, password } = req.body; // username з HTML-форми
 
   if (!username || !password) {
-    return res.send('❌ Будь ласка, заповни всі поля!');
+    return res.json({ success: false, message: '❌ Будь ласка, заповни всі поля!' });
   }
 
   try {
     const existingUser = await prisma.user.findUnique({ where: { email: username } });
     if (existingUser) {
-      return res.send('❌ Користувач з таким email вже існує!');
+      return res.json({ success: false, message: '❌ Користувач з таким email вже існує!' });
     }
 
     await prisma.user.create({
@@ -69,10 +69,10 @@ app.post('/register', async (req, res) => {
     });
 
     req.session.user = { email: username };
-    res.redirect('/');
+    res.json({ success: true, message: '✅ Реєстрація успішна!' });
   } catch (err) {
     console.error(err);
-    res.send('❌ Помилка при реєстрації.');
+    res.json({ success: false, message: '❌ Помилка при реєстрації.' });
   }
 });
 
@@ -80,12 +80,17 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (user && user.password === password) {
-    req.session.user = { email };
-    res.redirect('/');
-  } else {
-    res.send('❌ Неправильний логін або пароль');
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (user && user.password === password) {
+      req.session.user = { email };
+      res.json({ success: true, message: '✅ Вхід успішний!' });
+    } else {
+      res.json({ success: false, message: '❌ Неправильний логін або пароль' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.json({ success: false, message: '❌ Помилка при вході.' });
   }
 });
 

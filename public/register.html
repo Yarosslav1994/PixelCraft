@@ -120,12 +120,12 @@
       <p class="lead">Введіть email або логін та пароль</p>
     </header>
 
-    <form class="register-card" action="/register" method="POST" novalidate>
+    <form class="register-card" novalidate>
       <input type="email" id="usernameField" name="username" placeholder="Email" required
              title="Введіть коректну адресу електронної пошти (наприклад, name@example.com)">
       
       <input type="password" id="passwordField" name="password" placeholder="Пароль" required
-             pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,20}$"
+             pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,20}$"
              title="Пароль має бути 8–20 символів, містити хоча б одну велику літеру, одну маленьку та одну цифру.">
 
       <button id="registerBtn">Зареєструватися</button>
@@ -138,7 +138,7 @@
   const statusMessage = document.getElementById("statusMessage");
   const form = document.querySelector(".register-card");
 
-  registerBtn.addEventListener("click", async e=>{
+  registerBtn.addEventListener("click", async e => {
     e.preventDefault();
 
     if (!form.checkValidity()) {
@@ -157,16 +157,20 @@
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({username,password})
       });
-      if(res.redirected){
-        window.location.href = res.url;
+
+      const data = await res.json();
+
+      if (data.success) {
+        statusMessage.style.color="#00ff99";
+        statusMessage.textContent = data.message;
+        setTimeout(() => window.location.href = "/", 1000);
       } else {
-        const text = await res.text();
         statusMessage.style.color="#ff6b6b";
-        statusMessage.textContent = text;
+        statusMessage.textContent = data.message;
       }
-    } catch(err){
+    } catch(err) {
       statusMessage.style.color="#ff6b6b";
-      statusMessage.textContent="Помилка: сервер недоступний";
+      statusMessage.textContent="❌ Помилка: сервер недоступний";
     }
   });
 </script>
