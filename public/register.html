@@ -109,8 +109,6 @@
 </style>
 </head>
 <body>
- 
-
   <div class="waves" aria-hidden="true">
     <div class="wave-layer"></div>
     <div class="wave-layer layer2"></div>
@@ -123,8 +121,8 @@
     </header>
 
     <section class="register-card">
-      <input type="text" id="usernameField" placeholder="Email або логін" required>
-      <input type="password" id="passwordField" placeholder="Пароль" required>
+      <input type="text" id="usernameField" name="username" placeholder="Email або логін" required>
+      <input type="password" id="passwordField" name="password" placeholder="Пароль" required>
       <button id="registerBtn">Зареєструватися</button>
       <p id="statusMessage" style="color:#ffcccb;margin-top:5px;font-size:0.9rem;"></p>
     </section>
@@ -146,7 +144,7 @@
           body:JSON.stringify({username,password})
         });
         if(res.redirected){
-          window.location.href = res.url; // перенаправляємо на / після успішної реєстрації
+          window.location.href = res.url;
         } else {
           const text = await res.text();
           statusMessage.style.color="#ff6b6b";
