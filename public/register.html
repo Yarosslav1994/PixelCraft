@@ -120,43 +120,53 @@
       <p class="lead">Введіть email або логін та пароль</p>
     </header>
 
-    <section class="register-card">
-      <input type="text" id="usernameField" name="username" placeholder="Email або логін" required>
-      <input type="password" id="passwordField" name="password" placeholder="Пароль" required>
+    <form class="register-card" action="/register" method="POST" novalidate>
+      <input type="email" id="usernameField" name="username" placeholder="Email" required
+             title="Введіть коректну адресу електронної пошти (наприклад, name@example.com)">
+      
+      <input type="password" id="passwordField" name="password" placeholder="Пароль" required
+             pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,20}$"
+             title="Пароль має бути 8–20 символів, містити хоча б одну велику літеру, одну маленьку та одну цифру.">
+
       <button id="registerBtn">Зареєструватися</button>
       <p id="statusMessage" style="color:#ffcccb;margin-top:5px;font-size:0.9rem;"></p>
-    </section>
+    </form>
   </div>
 
 <script>
   const registerBtn = document.getElementById("registerBtn");
   const statusMessage = document.getElementById("statusMessage");
+  const form = document.querySelector(".register-card");
 
   registerBtn.addEventListener("click", async e=>{
     e.preventDefault();
+
+    if (!form.checkValidity()) {
+      statusMessage.style.color="#ff6b6b";
+      statusMessage.textContent="❌ Перевірте правильність введених даних!";
+      form.reportValidity();
+      return;
+    }
+
     const username = document.getElementById("usernameField").value.trim();
     const password = document.getElementById("passwordField").value.trim();
-    if(username && password){
-      try {
-        const res = await fetch("/register", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({username,password})
-        });
-        if(res.redirected){
-          window.location.href = res.url;
-        } else {
-          const text = await res.text();
-          statusMessage.style.color="#ff6b6b";
-          statusMessage.textContent = text;
-        }
-      } catch(err){
+
+    try {
+      const res = await fetch("/register", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({username,password})
+      });
+      if(res.redirected){
+        window.location.href = res.url;
+      } else {
+        const text = await res.text();
         statusMessage.style.color="#ff6b6b";
-        statusMessage.textContent="Помилка: сервер недоступний";
+        statusMessage.textContent = text;
       }
-    } else {
+    } catch(err){
       statusMessage.style.color="#ff6b6b";
-      statusMessage.textContent="Заповніть обидва поля!";
+      statusMessage.textContent="Помилка: сервер недоступний";
     }
   });
 </script>
