@@ -125,8 +125,9 @@
              title="Введіть коректну адресу електронної пошти (наприклад, name@example.com)">
       
              <input type="password" id="passwordField" name="password" placeholder="Пароль" required
-             pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[A-Za-z0-9]{8,20}$"
-             title="Пароль має бути 8–20 символів, містити хоча б одну велику літеру, одну маленьку та одну цифру.">
+       pattern=".{5,}" 
+       title="Пароль має бути не менше 5 символів">
+
       
 
       <button id="registerBtn">Зареєструватися</button>

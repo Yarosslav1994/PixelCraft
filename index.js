@@ -58,6 +58,11 @@ app.post('/register', async (req, res) => {
     return res.json({ success: false, message: '❌ Будь ласка, заповни всі поля!' });
   }
 
+  // ===== ДОДАНА ПРОСТА ПЕРЕВІРКА ПАРОЛЯ =====
+  if (password.length < 5) {
+    return res.json({ success: false, message: '❌ Пароль має бути не менше 5 символів!' });
+  }
+
   try {
     const existingUser = await prisma.user.findUnique({ where: { email: username } });
     if (existingUser) {
@@ -75,6 +80,7 @@ app.post('/register', async (req, res) => {
     res.json({ success: false, message: '❌ Помилка при реєстрації.' });
   }
 });
+
 
 // ======= ЛОГІН =======
 app.post('/login', async (req, res) => {
