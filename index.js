@@ -45,20 +45,13 @@ app.get('/techcheck.html', requireLogin, (req, res) => {
 
 // ======= РЕЄСТРАЦІЯ =======
 
-// 🔹 Показ сторінки реєстрації
-app.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'register.html'));
-});
-
-// 🔹 Обробка форми
 app.post('/register', async (req, res) => {
-  const { username, password } = req.body; // username з HTML-форми
+  const { username, password } = req.body;
 
   if (!username || !password) {
     return res.json({ success: false, message: '❌ Будь ласка, заповни всі поля!' });
   }
 
-  // ===== ДОДАНА ПРОСТА ПЕРЕВІРКА ПАРОЛЯ =====
   if (password.length < 5) {
     return res.json({ success: false, message: '❌ Пароль має бути не менше 5 символів!' });
   }
@@ -76,10 +69,12 @@ app.post('/register', async (req, res) => {
     req.session.user = { email: username };
     res.json({ success: true, message: '✅ Реєстрація успішна!' });
   } catch (err) {
-    console.error(err);
+    console.error('Prisma Error:', err);
     res.json({ success: false, message: '❌ Помилка при реєстрації.' });
   }
 });
+
+
 
 
 // ======= ЛОГІН =======

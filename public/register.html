@@ -124,12 +124,10 @@
       <input type="email" id="usernameField" name="username" placeholder="Email" required
              title="Введіть коректну адресу електронної пошти (наприклад, name@example.com)">
       
-             <input type="password" id="passwordField" name="password" placeholder="Пароль" required
-       pattern=".{5,}" 
-       title="Пароль має бути не менше 5 символів">
-
+      <input type="password" id="passwordField" name="password" placeholder="Пароль" required
+             pattern=".{5,}"
+             title="Пароль має бути не менше 5 символів">
       
-
       <button id="registerBtn">Зареєструватися</button>
       <p id="statusMessage" style="color:#ffcccb;margin-top:5px;font-size:0.9rem;"></p>
     </form>
@@ -152,6 +150,12 @@
 
     const username = document.getElementById("usernameField").value.trim();
     const password = document.getElementById("passwordField").value.trim();
+
+    if (password.length < 5) {
+      statusMessage.style.color="#ff6b6b";
+      statusMessage.textContent="❌ Пароль має бути не менше 5 символів!";
+      return;
+    }
 
     try {
       const res = await fetch("/register", {
